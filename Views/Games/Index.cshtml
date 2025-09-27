@@ -1,0 +1,123 @@
+﻿@model IEnumerable<ZXManager.Models.Game>
+
+@{
+    ViewData["Title"] = "ZX Spectrum Game Collection";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add New Game</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["TitleSortParm"]">
+                    @Html.DisplayNameFor(model => model.Title)
+                    @if (ViewData["TitleSortParm"]?.ToString() == "title_desc")
+                    {
+                        <i class="fa fa-sort-up" aria-hidden="true"></i>
+                    }
+                    else if (ViewData["TitleSortParm"]?.ToString() == "")
+                    {
+                        <i class="fa fa-sort-down" aria-hidden="true"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-sort" aria-hidden="true"></i>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["PublisherSortParm"]">
+                    @Html.DisplayNameFor(model => model.Publisher)
+                    @if (ViewData["PublisherSortParm"]?.ToString() == "publisher_desc")
+                    {
+                        <i class="fa fa-sort-up" aria-hidden="true"></i>
+                    }
+                    else if (ViewData["PublisherSortParm"]?.ToString() == "Publisher")
+                    {
+                        <i class="fa fa-sort" aria-hidden="true"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-sort-down" aria-hidden="true"></i>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["GenreSortParm"]">
+                    @Html.DisplayNameFor(model => model.Genre)
+                    @if (ViewData["GenreSortParm"]?.ToString() == "genre_desc")
+                    {
+                        <i class="fa fa-sort-up" aria-hidden="true"></i>
+                    }
+                    else if (ViewData["GenreSortParm"]?.ToString() == "Genre")
+                    {
+                        <i class="fa fa-sort" aria-hidden="true"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-sort-down" aria-hidden="true"></i>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["YearSortParm"]">
+                    @Html.DisplayNameFor(model => model.Year)
+                    @if (ViewData["YearSortParm"]?.ToString() == "year_desc")
+                    {
+                        <i class="fa fa-sort-up" aria-hidden="true"></i>
+                    }
+                    else if (ViewData["YearSortParm"]?.ToString() == "Year")
+                    {
+                        <i class="fa fa-sort" aria-hidden="true"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-sort-down" aria-hidden="true"></i>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["RatingSortParm"]">
+                    @Html.DisplayNameFor(model => model.Rating)
+                    @if (ViewData["RatingSortParm"]?.ToString() == "rating_desc")
+                    {
+                        <i class="fa fa-sort-up" aria-hidden="true"></i>
+                    }
+                    else if (ViewData["RatingSortParm"]?.ToString() == "Rating")
+                    {
+                        <i class="fa fa-sort" aria-hidden="true"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-sort-down" aria-hidden="true"></i>
+                    }
+                </a>
+            </th>
+            <th>@Html.DisplayNameFor(model => model.Condition)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.Publisher.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Genre.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Year)</td>
+                <td>@Html.DisplayFor(modelItem => item.Rating) / 5</td>
+                <td>@Html.DisplayFor(modelItem => item.Condition)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to ZX Manager</h1>
+    <p>Organise and manage your ZX Spectrum game collection.</p>
+    <p>
+        <a asp-controller="Games" asp-action="Index" class="btn btn-primary btn-lg">View Collection</a>
+        <a asp-controller="Publishers" asp-action="Index" class="btn btn-outline-secondary btn-lg">Browse Publishers</a>
+    </p>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <h3>🕹️ Game Library</h3>
+        <p>Track your ZX Spectrum game collection with information about release year, condition, and more.</p>
+    </div>
+    <div class="col-md-4">
+        <h3>⭐ Rate Games</h3>
+        <p>Rate the games you've played and keep track of your favourites.</p>
+    </div>
+    <div class="col-md-4">
+        <h3>🔍 Search & Filter</h3>
+        <p>Quickly find games in your collection.</p>
+    </div>
+</div>

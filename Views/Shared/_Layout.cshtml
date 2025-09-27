@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ZX Manager</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background-color: #212529;
+            color: #fff;
+        }
+
+        .container {
+            background-color: #212529;
+        }
+
+        .footer {
+            background-color: #343a40 !important;
+            color: #6c757d !important;
+        }
+
+        .text-dark {
+            color: #fff !important;
+        }
+
+        .card {
+            background-color: #343a40;
+            border-color: #495057;
+        }
+
+        .form-control, .form-select {
+            background-color: #343a40;
+            border-color: #495057;
+            color: #fff;
+        }
+
+            .form-control:focus, .form-select:focus {
+                background-color: #343a40;
+                border-color: #86b7fe;
+                color: #fff;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+
+        .table-dark {
+            --bs-table-bg: #212529;
+        }
+
+        .btn-outline-light:hover {
+            color: #000;
+            background-color: #f8f9fa;
+            border-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand text-light" asp-area="" asp-controller="Home" asp-action="Index">ZX Manager</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-area="" asp-controller="Games" asp-action="Index">Games</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-area="" asp-controller="Publishers" asp-action="Index">Publishers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Genres" asp-action="Index">Genres</a>
+                        </li>
+                    </ul>
+
+                    <form class="d-flex me-3" asp-controller="Games" asp-action="Index" method="get">
+                        <input class="form-control me-2" type="search" name="searchString"
+                               placeholder="Search games..." aria-label="Search"
+                               value="@Context.Request.Query["searchString"]">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="border-top footer text-muted bg-dark">
+        <div class="container">
+            &copy; 2025 - ZX Manager
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

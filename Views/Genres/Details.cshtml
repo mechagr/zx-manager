@@ -1,0 +1,33 @@
+﻿@model ZXManager.Models.Genre
+
+@{
+    ViewData["Title"] = "Genre Details";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div>
+    <h4>@Html.DisplayFor(model => model.Name)</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Name)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Name)</dd>
+        <dt class="col-sm-2">Games in Genre</dt>
+        <dd class="col-sm-10">@Model.Games.Count</dd>
+    </dl>
+
+    @if (Model.Games.Any())
+    {
+        <h5>Games in this Genre:</h5>
+        <ul>
+            @foreach (var game in Model.Games)
+            {
+                <li>@game.Title (@game.Year)</li>
+            }
+        </ul>
+    }
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
