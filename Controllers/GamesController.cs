@@ -20,55 +20,34 @@ namespace ZXManager.Controllers
         public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
-            ViewData["TitleSortParm"] = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
+            ViewData["TitleSortParm"] = string.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
             ViewData["YearSortParm"] = sortOrder == "Year" ? "year_desc" : "Year";
             ViewData["PublisherSortParm"] = sortOrder == "Publisher" ? "publisher_desc" : "Publisher";
             ViewData["GenreSortParm"] = sortOrder == "Genre" ? "genre_desc" : "Genre";
             ViewData["RatingSortParm"] = sortOrder == "Rating" ? "rating_desc" : "Rating";
 
-            var games = from v in _context.Games.Include(v => v.Publisher).Include(v => v.Genre)
-                        select v;
+            var games = _context.Games.Include(g => g.Publisher).Include(g => g.Genre).AsQueryable();
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
-                games = games.Where(s => s.Title.Contains(searchString) ||
-                                        s.Genre.Name.Contains(searchString) ||
-                                        s.Publisher.Name.Contains(searchString));
+                games = games.Where(g => g.Title.Contains(searchString) ||
+                                         g.Genre.Name.Contains(searchString) ||
+                                         g.Publisher.Name.Contains(searchString));
             }
 
-            switch (sortOrder)
+            games = sortOrder switch
             {
-                case "title_desc":
-                    games = games.OrderByDescending(v => v.Title);
-                    break;
-                case "Year":
-                    games = games.OrderBy(v => v.Year);
-                    break;
-                case "year_desc":
-                    games = games.OrderByDescending(v => v.Year);
-                    break;
-                case "Publisher":
-                    games = games.OrderBy(v => v.Publisher.Name);
-                    break;
-                case "publisher_desc":
-                    games = games.OrderByDescending(v => v.Publisher.Name);
-                    break;
-                case "Genre":
-                    games = games.OrderBy(v => v.Genre.Name);
-                    break;
-                case "genre_desc":
-                    games = games.OrderByDescending(v => v.Genre.Name);
-                    break;
-                case "Rating":
-                    games = games.OrderBy(v => v.Rating);
-                    break;
-                case "rating_desc":
-                    games = games.OrderByDescending(v => v.Rating);
-                    break;
-                default:
-                    games = games.OrderBy(v => v.Title);
-                    break;
-            }
+                "title_desc" => games.OrderByDescending(g => g.Title),
+                "Year" => games.OrderBy(g => g.Year),
+                "year_desc" => games.OrderByDescending(g => g.Year),
+                "Publisher" => games.OrderBy(g => g.Publisher.Name),
+                "publisher_desc" => games.OrderByDescending(g => g.Publisher.Name),
+                "Genre" => games.OrderBy(g => g.Genre.Name),
+                "genre_desc" => games.OrderByDescending(g => g.Genre.Name),
+                "Rating" => games.OrderBy(g => g.Rating),
+                "rating_desc" => games.OrderByDescending(g => g.Rating),
+                _ => games.OrderBy(g => g.Title),
+            };
 
             return View(await games.AsNoTracking().ToListAsync());
         }
@@ -78,9 +57,9 @@ namespace ZXManager.Controllers
             if (id == null) return NotFound();
 
             var game = await _context.Games
-                .Include(v => v.Publisher)
-                .Include(v => v.Genre)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(g => g.Publisher)
+                .Include(g => g.Genre)
+                .FirstOrDefaultAsync(g => g.Id == id);
 
             if (game == null) return NotFound();
 
@@ -89,8 +68,7 @@ namespace ZXManager.Controllers
 
         public IActionResult Create()
         {
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name");
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name");
+            PopulateDropDowns();
             return View();
         }
 
@@ -98,15 +76,15 @@ namespace ZXManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,Year,Condition,Rating,PublisherId,GenreId")] Game game)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(game);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                PopulateDropDowns(game);
+                return View(game);
             }
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", game.PublisherId);
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", game.GenreId);
-            return View(game);
+
+            _context.Add(game);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -116,8 +94,7 @@ namespace ZXManager.Controllers
             var game = await _context.Games.FindAsync(id);
             if (game == null) return NotFound();
 
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", game.PublisherId);
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", game.GenreId);
+            PopulateDropDowns(game);
             return View(game);
         }
 
@@ -127,25 +104,24 @@ namespace ZXManager.Controllers
         {
             if (id != game.Id) return NotFound();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(game);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GameExists(game.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
-                return RedirectToAction(nameof(Index));
+                PopulateDropDowns(game);
+                return View(game);
             }
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", game.PublisherId);
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", game.GenreId);
-            return View(game);
+
+            try
+            {
+                _context.Update(game);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!GameExists(game.Id)) return NotFound();
+                throw;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -153,9 +129,9 @@ namespace ZXManager.Controllers
             if (id == null) return NotFound();
 
             var game = await _context.Games
-                .Include(v => v.Publisher)
-                .Include(v => v.Genre)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(g => g.Publisher)
+                .Include(g => g.Genre)
+                .FirstOrDefaultAsync(g => g.Id == id);
 
             if (game == null) return NotFound();
 
@@ -172,12 +148,16 @@ namespace ZXManager.Controllers
                 _context.Games.Remove(game);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GameExists(int id)
+        private bool GameExists(int id) => _context.Games.Any(g => g.Id == id);
+
+        private void PopulateDropDowns(Game game = null)
         {
-            return _context.Games.Any(e => e.Id == id);
+            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", game?.PublisherId);
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", game?.GenreId);
         }
     }
 }

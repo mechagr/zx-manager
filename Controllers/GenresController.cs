@@ -18,7 +18,10 @@ namespace ZXManager.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Genres.Include(g => g.Games).ToListAsync());
+            var genres = await _context.Genres
+                .Include(g => g.Games)
+                .ToListAsync();
+            return View(genres);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -26,7 +29,7 @@ namespace ZXManager.Controllers
             if (id == null) return NotFound();
 
             var genre = await _context.Genres
-                .Include(c => c.Games)
+                .Include(g => g.Games)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (genre == null) return NotFound();
@@ -43,13 +46,11 @@ namespace ZXManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description")] Genre genre)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(genre);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(genre);
+            if (!ModelState.IsValid) return View(genre);
+
+            _context.Add(genre);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -67,24 +68,20 @@ namespace ZXManager.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Genre genre)
         {
             if (id != genre.Id) return NotFound();
+            if (!ModelState.IsValid) return View(genre);
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    _context.Update(genre);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GenreExists(genre.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(genre);
+                await _context.SaveChangesAsync();
             }
-            return View(genre);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!GenreExists(genre.Id)) return NotFound();
+                throw;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -93,7 +90,6 @@ namespace ZXManager.Controllers
 
             var genre = await _context.Genres
                 .FirstOrDefaultAsync(m => m.Id == id);
-
             if (genre == null) return NotFound();
 
             return View(genre);
@@ -109,12 +105,10 @@ namespace ZXManager.Controllers
                 _context.Genres.Remove(genre);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GenreExists(int id)
-        {
-            return _context.Genres.Any(e => e.Id == id);
-        }
+        private bool GenreExists(int id) => _context.Genres.Any(e => e.Id == id);
     }
 }

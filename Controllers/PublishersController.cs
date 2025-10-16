@@ -18,7 +18,10 @@ namespace ZXManager.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Publishers.Include(p => p.Games).ToListAsync());
+            var publishers = await _context.Publishers
+                .Include(p => p.Games)
+                .ToListAsync();
+            return View(publishers);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -26,7 +29,7 @@ namespace ZXManager.Controllers
             if (id == null) return NotFound();
 
             var publisher = await _context.Publishers
-                .Include(a => a.Games)
+                .Include(p => p.Games)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (publisher == null) return NotFound();
@@ -43,13 +46,11 @@ namespace ZXManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Bio")] Publisher publisher)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(publisher);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(publisher);
+            if (!ModelState.IsValid) return View(publisher);
+
+            _context.Add(publisher);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -68,23 +69,22 @@ namespace ZXManager.Controllers
         {
             if (id != publisher.Id) return NotFound();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(publisher);
+
+            try
             {
-                try
-                {
-                    _context.Update(publisher);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PublisherExists(publisher.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(publisher);
+                await _context.SaveChangesAsync();
             }
-            return View(publisher);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PublisherExists(publisher.Id))
+                    return NotFound();
+                else
+                    throw;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -109,6 +109,7 @@ namespace ZXManager.Controllers
                 _context.Publishers.Remove(publisher);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Index));
         }
 
